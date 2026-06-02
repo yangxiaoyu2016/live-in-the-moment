@@ -25,12 +25,16 @@ dependencies = [
   "Pillow>=10.0.0",
 ]
 
+[project.optional-dependencies]
+build = ["pyinstaller>=6.0"]
+
 [project.urls]
 Homepage = "https://github.com/OWNER/live-in-the-moment"
 Issues = "https://github.com/OWNER/live-in-the-moment/issues"
 
 [project.scripts]
 limm = "live_in_the_moment.cli:main"
+limm-gui = "live_in_the_moment.gui:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

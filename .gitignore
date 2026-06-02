@@ -8,6 +8,7 @@ env/
 build/
 dist/
 *.egg-info/
+*.spec
 
 # Local exports and private WeChat data
 workspace/
@@ -34,4 +35,3 @@ media_by_month/
 *.png
 *.gif
 *.webp
-

@@ -16,6 +16,22 @@ Chinese documentation: [README.zh-CN.md](README.zh-CN.md)
 
 ## Install
 
+### Downloadable Windows app
+
+For most users, download `LiveInTheMoment.exe` from the GitHub Releases page and double-click it.
+
+In the app:
+
+1. Choose `moments_extracted.json`.
+2. Choose the WeChat account cache folder under `xwechat_files`.
+3. Choose an output folder.
+4. Click `Export text` or `Build gallery`.
+5. If images are needed, click `Probe image key` first and confirm that you are processing your own local WeChat session.
+
+The executable is not code-signed, so Windows SmartScreen may show a warning on first run.
+
+### Python CLI
+
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\activate
@@ -99,4 +115,3 @@ The memory probing helper reads a local process you specify or own. Use it only 
 ## License
 
 MIT
-

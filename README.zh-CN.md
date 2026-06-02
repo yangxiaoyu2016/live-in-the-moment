@@ -14,6 +14,22 @@
 
 ## 安装
 
+### 直接下载 Windows 程序
+
+大多数用户可以直接从 GitHub Releases 下载 `LiveInTheMoment.exe`，双击运行。
+
+在程序里：
+
+1. 选择 `moments_extracted.json`。
+2. 选择 `xwechat_files` 下的微信账号缓存目录。
+3. 选择输出目录。
+4. 点击“只导出文字”或“生成图文 HTML”。
+5. 如果要导出图片，先点击“探测图片 Key”，并确认你正在处理的是自己的本机微信会话。
+
+这个 EXE 暂未做代码签名，Windows SmartScreen 第一次运行时可能会提示风险。
+
+### Python 命令行
+
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\activate
@@ -97,4 +113,3 @@ limm probe-v2-key `
 ## License
 
 MIT
-
