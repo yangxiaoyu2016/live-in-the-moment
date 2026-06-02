@@ -22,13 +22,15 @@ For most users, download `LiveInTheMoment.exe` from the GitHub Releases page and
 
 In the app:
 
-1. Choose `moments_extracted.json`.
-2. Choose the WeChat account cache folder under `xwechat_files`.
-3. Choose an output folder.
-4. Click `Export text` or `Build gallery`.
-5. If images are needed, click `Probe image key` first and confirm that you are processing your own local WeChat session.
+1. Log in to WeChat for Windows and keep it running.
+2. Open `LiveInTheMoment.exe`.
+3. Let the app auto-detect the WeChat data folder, or choose `xwechat_files` manually.
+4. Choose an output folder.
+5. Click `One-click export all Moments`.
 
 The executable is not code-signed, so Windows SmartScreen may show a warning on first run.
+
+Image export is automatic when the image cache key is available in the running WeChat process. If the app exports text but skips images, open Moments or any Moment photo in WeChat, then run the export again.
 
 ### Python CLI
 
@@ -46,6 +48,13 @@ Export text:
 limm export-text `
   --input examples\moments_extracted.sample.json `
   --output-dir out\text
+```
+
+One-click export from the currently logged-in Windows WeChat:
+
+```powershell
+limm one-click `
+  --output-dir out\one-click
 ```
 
 Build a local gallery from an extracted Moments JSON and your WeChat account cache folder:

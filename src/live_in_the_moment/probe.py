@@ -95,7 +95,7 @@ def candidate_keys_from_chunk(data: bytes) -> set[bytes]:
             keys.add(bytes.fromhex(raw.decode("ascii")))
         except ValueError:
             pass
-    for marker in (b"\x07\x08V1\x08\x07", b"\x07\x08V2\x08\x07"):
+    for marker in (b"cfcd208495d565ef", b"43e7d25eb1b9bb64", b"\x07\x08V1\x08\x07", b"\x07\x08V2\x08\x07"):
         index = data.find(marker)
         while index >= 0:
             area = data[max(0, index - 2048) : min(len(data), index + 2048)]
@@ -174,4 +174,3 @@ def probe_v2_key(sample: Path, pid: int = 0, max_mb: int = 0) -> dict:
 
 def dumps_probe_result(result: dict) -> str:
     return json.dumps(result, ensure_ascii=False, indent=2)
-

@@ -11,6 +11,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from PIL import Image
 
 from live_in_the_moment.gallery import dedupe_records, image_hashes_and_size
+from live_in_the_moment.extract import extract_moments, parse_xml_content
 from live_in_the_moment.media import decode_v2_image_bytes, sniff_ext
 from live_in_the_moment.moments import export_text, load_moments
 
@@ -84,7 +85,37 @@ class CoreTests(unittest.TestCase):
         self.assertEqual(removed, 1)
         self.assertEqual(kept[0]["cache_key"], "large")
 
+    def test_parse_xml_content(self):
+        xml = """
+        <SnsDataItem><TimelineObject>
+          <id>fake-post</id><username>wxid_example</username><createTime>1735689600</createTime>
+          <contentDesc>Hello &amp; welcome</contentDesc>
+          <ContentObject><type>2</type><mediaList><media md5="00000000000000000000000000000001">
+            <url>https://example.invalid/full</url><thumb>https://example.invalid/thumb</thumb>
+          </media></mediaList></ContentObject>
+        </TimelineObject></SnsDataItem>
+        """
+        parsed = parse_xml_content(xml)
+        self.assertEqual(parsed["post_id"], "fake-post")
+        self.assertEqual(parsed["username"], "wxid_example")
+        self.assertEqual(parsed["content_desc"], "Hello & welcome")
+        self.assertEqual(parsed["media_count"], 1)
+        self.assertEqual(parsed["media_md5"], ["00000000000000000000000000000001"])
+
+    def test_extract_falls_back_when_owner_id_does_not_match(self):
+        xml = "<SnsDataItem><TimelineObject><id>p1</id><username>custom_user</username><createTime>1735689600</createTime><contentDesc>Fallback works</contentDesc><ContentObject><type>1</type></ContentObject></TimelineObject></SnsDataItem>"
+        with tempfile.TemporaryDirectory() as tmp:
+            result = extract_moments(
+                [{"tid": 1, "user_name": "custom_user", "content_type": "text", "content": xml, "pack_info_type": "text", "pack_info_buf": ""}],
+                Path(tmp),
+                owner_wxid="wxid_folder_guess",
+                owner_only=True,
+                logger=lambda _message: None,
+            )
+            self.assertEqual(result["rows"], 1)
+            exported = json.loads((Path(tmp) / "moments_extracted.json").read_text(encoding="utf-8"))
+            self.assertEqual(exported[0]["content_desc"], "Fallback works")
+
 
 if __name__ == "__main__":
     unittest.main()
-

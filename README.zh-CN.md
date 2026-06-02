@@ -20,13 +20,15 @@
 
 在程序里：
 
-1. 选择 `moments_extracted.json`。
-2. 选择 `xwechat_files` 下的微信账号缓存目录。
-3. 选择输出目录。
-4. 点击“只导出文字”或“生成图文 HTML”。
-5. 如果要导出图片，先点击“探测图片 Key”，并确认你正在处理的是自己的本机微信会话。
+1. 先登录 Windows 版微信，并保持微信运行。
+2. 打开 `LiveInTheMoment.exe`。
+3. 让程序自动检测微信数据目录，或手动选择 `xwechat_files`。
+4. 选择输出目录。
+5. 点击“一键导出所有朋友圈”。
 
 这个 EXE 暂未做代码签名，Windows SmartScreen 第一次运行时可能会提示风险。
+
+图片导出会自动探测微信运行进程里的图片缓存 key。如果程序成功导出文字但跳过图片，请先在微信里打开朋友圈或任意朋友圈图片，再重新运行导出。
 
 ### Python 命令行
 
@@ -44,6 +46,13 @@ pip install -e .
 limm export-text `
   --input examples\moments_extracted.sample.json `
   --output-dir out\text
+```
+
+从当前已登录的 Windows 版微信一键导出：
+
+```powershell
+limm one-click `
+  --output-dir out\one-click
 ```
 
 从朋友圈 JSON 和微信本地缓存目录生成图文归档：
