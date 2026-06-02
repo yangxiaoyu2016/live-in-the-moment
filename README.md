@@ -6,6 +6,14 @@ Archive your own WeChat Moments text and locally cached images into portable fil
 
 This project is for personal data recovery and archiving on your own Windows machine. It does not bypass WeChat account login, does not fetch private data from remote services, and must only be used on data you own or are authorized to process.
 
+## Download the Windows app
+
+For the fastest start, download the ready-to-run Windows executable:
+
+[Download LiveInTheMoment.exe](https://github.com/yangxiaoyu2016/live-in-the-moment/releases/latest/download/LiveInTheMoment.exe)
+
+Then log in to WeChat for Windows, keep it running, open the app, and click `One-click export all Moments`.
+
 Chinese documentation: [README.zh-CN.md](README.zh-CN.md)
 
 ## Features
@@ -20,7 +28,7 @@ Chinese documentation: [README.zh-CN.md](README.zh-CN.md)
 
 ### Downloadable Windows app
 
-For most users, download `LiveInTheMoment.exe` from the GitHub Releases page and double-click it.
+For most users, download [LiveInTheMoment.exe](https://github.com/yangxiaoyu2016/live-in-the-moment/releases/latest/download/LiveInTheMoment.exe) and double-click it.
 
 In the app:
 
