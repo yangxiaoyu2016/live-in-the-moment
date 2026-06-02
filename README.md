@@ -1,4 +1,6 @@
-# Live in the Moment
+# Live in the Moment by Yang&Codex
+
+人只活一些瞬间
 
 Archive your own WeChat Moments text and locally cached images into portable files.
 
