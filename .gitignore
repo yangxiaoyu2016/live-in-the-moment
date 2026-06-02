@@ -1,0 +1,37 @@
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+.venv/
+venv/
+env/
+build/
+dist/
+*.egg-info/
+
+# Local exports and private WeChat data
+workspace/
+out/
+exports/
+media_by_month/
+*.db
+*.sqlite
+*.db-shm
+*.db-wal
+*.log
+*.html
+*.csv
+*.json
+*.txt
+*.md
+!README.md
+!README.zh-CN.md
+!examples/*.json
+
+# Images are private by default. Add deliberately if you create fake fixtures.
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+
