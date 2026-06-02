@@ -169,11 +169,11 @@ def write_gallery_outputs(output_dir: Path, posts_by_month: dict[str, list[Momen
     months = sorted(set(posts_by_month) | set(images_by_month))
     html_parts = [
         "<!doctype html><html><head><meta charset='utf-8'>",
-        "<title>Live in the moment export</title>",
+        "<title>Live in the Moment export</title>",
         "<style>body{font-family:system-ui,sans-serif;max-width:1120px;margin:32px auto;padding:0 16px;line-height:1.5}.month{border-top:1px solid #ddd;margin-top:32px;padding-top:24px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}.grid img{width:100%;height:180px;object-fit:cover;border-radius:6px}.muted{color:#666}time{font-weight:600}</style>",
-        "</head><body><h1>Live in the moment export</h1>",
+        "</head><body><h1>Live in the Moment export</h1>",
     ]
-    md_parts = ["# Live in the moment export\n"]
+    md_parts = ["# Live in the Moment export\n"]
     for month in months:
         posts = posts_by_month.get(month, [])
         images = images_by_month.get(month, [])
@@ -264,4 +264,3 @@ def build_gallery(
         "output_dir": str(output_dir),
         **outputs,
     }
-

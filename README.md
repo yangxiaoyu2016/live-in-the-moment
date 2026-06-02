@@ -1,4 +1,4 @@
-# Live in the moment
+# Live in the Moment
 
 Archive your own WeChat Moments text and locally cached images into portable files.
 

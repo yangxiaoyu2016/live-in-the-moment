@@ -1,3 +1,3 @@
-"""Live in the moment: WeChat Moments archiving helpers."""
+"""Live in the Moment: WeChat Moments archiving helpers."""
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"

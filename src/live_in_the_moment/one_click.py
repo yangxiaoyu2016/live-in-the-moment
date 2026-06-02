@@ -34,6 +34,26 @@ def account_root_from_db(db_path: Path) -> Path:
         return db_path.parent
 
 
+def _parse_filter_date(value: str, label: str) -> dt.datetime | None:
+    value = (value or "").strip()
+    if not value:
+        return None
+    try:
+        return dt.datetime.strptime(value, "%Y-%m-%d")
+    except ValueError as exc:
+        raise ValueError(f"日期格式不对：{label}必须是 YYYY-MM-DD，例如 2026-06-02。") from exc
+
+
+def validate_date_range(start_date: str = "", end_date: str = "") -> tuple[str, str]:
+    start_date = (start_date or "").strip()
+    end_date = (end_date or "").strip()
+    start = _parse_filter_date(start_date, "开始日期")
+    end = _parse_filter_date(end_date, "结束日期")
+    if start and end and start > end:
+        raise ValueError("日期范围不对：开始日期不能晚于结束日期。")
+    return start_date, end_date
+
+
 def one_click_export(
     output_dir: Path,
     source_root: Path | None = None,
@@ -43,6 +63,7 @@ def one_click_export(
     pid: int = 0,
     logger=print,
 ) -> dict:
+    start_date, end_date = validate_date_range(start_date, end_date)
     output_dir.mkdir(parents=True, exist_ok=True)
     decrypt_report = decrypt_logged_in_sns_db(output_dir, source_root=source_root, pid=pid, logger=logger)
     plain_db = Path(decrypt_report["plain_db"])
@@ -62,6 +83,8 @@ def one_click_export(
         logger=logger,
     )
     text = export_text(Path(extracted["json"]), output_dir / "text", start_date=start_date, end_date=end_date)
+    text_path = Path(text["text"])
+    logger(f"朋友圈文字保存在了：目录 {text_path.parent}，文件 {text_path.name}")
 
     gallery = {}
     image_key = ""
@@ -84,7 +107,7 @@ def one_click_export(
                     end_date=end_date,
                 )
             else:
-                logger("未能探测到图片缓存 key，已跳过图片导出。可在微信里打开朋友圈或任意朋友圈图片后重试。")
+                logger("未能探测到图片缓存 key，已跳过图片导出。可以在微信里重新打开朋友圈图片后再重试。")
         else:
             logger("没有找到 V2 图片缓存样本，已跳过图片导出。")
 
@@ -97,6 +120,8 @@ def one_click_export(
         "moments_json": extracted["json"],
         "moments_csv": extracted["csv"],
         "text": text,
+        "text_dir": str(text_path.parent),
+        "text_file": text_path.name,
         "gallery": gallery,
         "images_enabled": include_images,
         "images_key_found": bool(image_key),

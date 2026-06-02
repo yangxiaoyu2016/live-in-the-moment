@@ -53,37 +53,41 @@ def main(argv: list[str] | None = None) -> int:
     one_click.add_argument("--pid", type=int, default=0, help="Main Weixin.exe PID. Omit to auto-detect.")
 
     args = parser.parse_args(argv)
-    if args.command == "export-text":
-        _print_result(export_text(args.input, args.output_dir, start_date=args.start_date, end_date=args.end_date))
-        return 0
-    if args.command == "build-gallery":
-        _print_result(
-            build_gallery(
-                input_path=args.input,
-                account_root=args.account_root,
-                output_dir=args.output_dir,
-                v2_aes_key=args.v2_aes_key,
-                v2_xor_key=args.v2_xor_key,
-                start_date=args.start_date,
-                end_date=args.end_date,
+    try:
+        if args.command == "export-text":
+            _print_result(export_text(args.input, args.output_dir, start_date=args.start_date, end_date=args.end_date))
+            return 0
+        if args.command == "build-gallery":
+            _print_result(
+                build_gallery(
+                    input_path=args.input,
+                    account_root=args.account_root,
+                    output_dir=args.output_dir,
+                    v2_aes_key=args.v2_aes_key,
+                    v2_xor_key=args.v2_xor_key,
+                    start_date=args.start_date,
+                    end_date=args.end_date,
+                )
             )
-        )
-        return 0
-    if args.command == "probe-v2-key":
-        _print_result(probe_v2_key(args.sample, pid=args.pid, max_mb=args.max_mb))
-        return 0
-    if args.command == "one-click":
-        _print_result(
-            one_click_export(
-                output_dir=args.output_dir,
-                source_root=args.source_root,
-                include_images=not args.no_images,
-                start_date=args.start_date,
-                end_date=args.end_date,
-                pid=args.pid,
+            return 0
+        if args.command == "probe-v2-key":
+            _print_result(probe_v2_key(args.sample, pid=args.pid, max_mb=args.max_mb))
+            return 0
+        if args.command == "one-click":
+            _print_result(
+                one_click_export(
+                    output_dir=args.output_dir,
+                    source_root=args.source_root,
+                    include_images=not args.no_images,
+                    start_date=args.start_date,
+                    end_date=args.end_date,
+                    pid=args.pid,
+                )
             )
-        )
-        return 0
+            return 0
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
     parser.error("unknown command")
     return 2
 

@@ -10,14 +10,15 @@ from pathlib import Path
 from tkinter import BooleanVar, StringVar, Tk, filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
 
+from . import __version__
 from .db_decrypt import candidate_source_roots
-from .one_click import one_click_export
+from .one_click import one_click_export, validate_date_range
 
 
 class App:
     def __init__(self, root: Tk) -> None:
         self.root = root
-        self.root.title("Live in the moment")
+        self.root.title(f"Live in the Moment v{__version__}")
         self.root.geometry("900x640")
         self.events: queue.Queue[str] = queue.Queue()
 
@@ -35,12 +36,17 @@ class App:
         frame = ttk.Frame(self.root, padding=16)
         frame.pack(fill="both", expand=True)
 
-        ttk.Label(frame, text="Live in the moment - 微信朋友圈一键导出", font=("Segoe UI", 16, "bold")).grid(
-            row=0, column=0, columnspan=4, sticky="w", pady=(0, 12)
-        )
         ttk.Label(
             frame,
-            text="使用前请先登录 Windows 版微信，并保持微信运行。本工具仅用于导出你本人、本机、已授权的朋友圈数据。",
+            text=f"Live in the Moment - 微信朋友圈一键导出 v{__version__} - made by Yang&Codex",
+            font=("Segoe UI", 16, "bold"),
+        ).grid(row=0, column=0, columnspan=4, sticky="w", pady=(0, 12))
+        ttk.Label(
+            frame,
+            text=(
+                "使用前请先登录 Windows 版微信，并保持微信正在运行。"
+                "本工具只导出你本人、本机、已登录账号可读取的朋友圈数据。"
+            ),
             foreground="#8a4b00",
             wraplength=840,
         ).grid(row=1, column=0, columnspan=4, sticky="w", pady=(0, 14))
@@ -48,14 +54,16 @@ class App:
         self._path_row(frame, 2, "微信数据目录", self.source_root, self._choose_source_root, extra=True)
         self._path_row(frame, 3, "输出目录", self.output_dir, self._choose_output_dir)
 
-        ttk.Label(frame, text="开始日期").grid(row=4, column=0, sticky="w", pady=6)
+        ttk.Label(frame, text="开始日期  YYYY-MM-DD，可留空").grid(row=4, column=0, sticky="w", pady=6)
         ttk.Entry(frame, textvariable=self.start_date, width=18).grid(row=4, column=1, sticky="w", pady=6)
         ttk.Label(frame, text="结束日期  YYYY-MM-DD，可留空").grid(row=4, column=1, sticky="w", padx=(160, 0), pady=6)
         ttk.Entry(frame, textvariable=self.end_date, width=18).grid(row=4, column=1, sticky="w", padx=(360, 0), pady=6)
 
-        ttk.Checkbutton(frame, text="同时导出本地可打开图片 HTML（会自动探测图片缓存 Key）", variable=self.include_images).grid(
-            row=5, column=0, columnspan=4, sticky="w", pady=8
-        )
+        ttk.Checkbutton(
+            frame,
+            text="同时导出本地可打开图片 HTML（会自动探测图片缓存 key）",
+            variable=self.include_images,
+        ).grid(row=5, column=0, columnspan=4, sticky="w", pady=8)
 
         actions = ttk.Frame(frame)
         actions.grid(row=6, column=0, columnspan=4, sticky="ew", pady=14)
@@ -97,31 +105,41 @@ class App:
         self.source_root.set(str(roots[0]))
         self._log(f"已自动选择微信数据目录：{roots[0]}")
 
-    def _validate(self) -> tuple[Path | None, Path]:
+    def _validate(self) -> tuple[Path | None, Path, str, str]:
         raw_source = self.source_root.get().strip()
+        raw_output = self.output_dir.get().strip()
         source_root = Path(raw_source) if raw_source else None
-        output_dir = Path(self.output_dir.get().strip())
         if source_root and not source_root.exists():
             raise ValueError("微信数据目录不存在，请重新选择 xwechat_files 目录。")
-        if not output_dir:
+        if not raw_output:
             raise ValueError("请先选择输出目录。")
-        return source_root, output_dir
+        start_date, end_date = validate_date_range(self.start_date.get(), self.end_date.get())
+        return source_root, Path(raw_output), start_date, end_date
 
     def _one_click(self) -> None:
+        try:
+            source_root, output_dir, start_date, end_date = self._validate()
+        except ValueError as exc:
+            messagebox.showerror("格式不对", str(exc))
+            return
+
         if not messagebox.askyesno(
             "确认一键导出",
-            "这一步会读取本机正在运行的 Weixin.exe 进程内存，用于解密你本机的朋友圈数据库和图片缓存。\n\n请确认你正在处理的是自己的电脑、自己的微信账号或已获授权的数据。",
+            (
+                "这一步会读取本机正在运行的 Weixin.exe 进程内存，"
+                "用于解密你本人本机的朋友圈数据库和图片缓存。\n\n"
+                "请确认你正在导出的账号是自己的微信账号，并且微信已登录。"
+            ),
         ):
             return
 
         def job() -> dict:
-            source_root, output_dir = self._validate()
             return one_click_export(
                 output_dir=output_dir,
                 source_root=source_root,
                 include_images=self.include_images.get(),
-                start_date=self.start_date.get().strip(),
-                end_date=self.end_date.get().strip(),
+                start_date=start_date,
+                end_date=end_date,
                 logger=self._thread_log,
             )
 
@@ -171,4 +189,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

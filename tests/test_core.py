@@ -14,6 +14,7 @@ from live_in_the_moment.gallery import dedupe_records, image_hashes_and_size
 from live_in_the_moment.extract import extract_moments, parse_xml_content
 from live_in_the_moment.media import decode_v2_image_bytes, sniff_ext
 from live_in_the_moment.moments import export_text, load_moments
+from live_in_the_moment.one_click import validate_date_range
 
 
 def png_bytes(size=(32, 32), color=(200, 40, 40)) -> bytes:
@@ -70,6 +71,13 @@ class CoreTests(unittest.TestCase):
             )
             rows = load_moments(src, start_date="2025-02-01")
             self.assertEqual([row.content for row in rows], ["two"])
+
+    def test_validate_date_range(self):
+        self.assertEqual(validate_date_range(" 2025-01-01 ", "2026-06-02"), ("2025-01-01", "2026-06-02"))
+        with self.assertRaisesRegex(ValueError, "日期格式不对"):
+            validate_date_range("2025/01/01", "")
+        with self.assertRaisesRegex(ValueError, "开始日期不能晚于结束日期"):
+            validate_date_range("2026-01-01", "2025-01-01")
 
     def test_dedupe_prefers_larger_image(self):
         small = png_bytes((32, 32), (30, 120, 200))
