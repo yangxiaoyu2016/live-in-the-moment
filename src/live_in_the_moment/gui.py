@@ -15,6 +15,11 @@ from .one_click import one_click_export, validate_date_range
 from .report import build_report_from_txt
 
 
+def should_show_gui_log(message: str) -> bool:
+    hidden_prefixes = ("[2/5]", "[3/5]")
+    return not str(message).lstrip().startswith(hidden_prefixes)
+
+
 class App:
     def __init__(self, root: Tk) -> None:
         self.root = root
@@ -188,6 +193,8 @@ class App:
         threading.Thread(target=worker, daemon=True).start()
 
     def _thread_log(self, message: str) -> None:
+        if not should_show_gui_log(str(message)):
+            return
         self.events.put(str(message))
 
     def _poll_events(self) -> None:

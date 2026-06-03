@@ -12,6 +12,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from PIL import Image
 
 from live_in_the_moment.gallery import dedupe_records, image_hashes_and_size
+from live_in_the_moment.gui import should_show_gui_log
 from live_in_the_moment.extract import extract_moments, parse_xml_content
 from live_in_the_moment.media import decode_v2_image_bytes, sniff_ext
 from live_in_the_moment.moments import export_text, load_moments
@@ -84,6 +85,13 @@ class CoreTests(unittest.TestCase):
             validate_date_range("2025/01/01", "")
         with self.assertRaisesRegex(ValueError, "开始日期不能晚于结束日期"):
             validate_date_range("2026-01-01", "2025-01-01")
+
+    def test_gui_hides_database_progress_logs(self):
+        self.assertTrue(should_show_gui_log("[1/5] 已找到微信进程：1234"))
+        self.assertFalse(should_show_gui_log("[2/5] 已找到朋友圈数据库：hidden"))
+        self.assertFalse(should_show_gui_log("  [3/5] 朋友圈数据库解密完成"))
+        self.assertTrue(should_show_gui_log("[4/5] 已读取朋友圈原始记录：10 条"))
+        self.assertTrue(should_show_gui_log("[5/5] 已生成朋友圈 JSON：10 条"))
 
     def test_parse_moments_txt(self):
         with tempfile.TemporaryDirectory() as tmp:
