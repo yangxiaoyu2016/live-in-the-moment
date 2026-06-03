@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import json
 import os
 import queue
 import threading
 import traceback
 import webbrowser
 from pathlib import Path
-from tkinter import BooleanVar, StringVar, Tk, filedialog, messagebox, ttk
+from tkinter import StringVar, Tk, filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
 
 from . import __version__
@@ -29,7 +28,6 @@ class App:
         self.report_txt = StringVar(value=str(self._default_report_txt()))
         self.start_date = StringVar()
         self.end_date = StringVar()
-        self.include_images = BooleanVar(value=True)
 
         self._build()
         self._poll_events()
@@ -63,27 +61,21 @@ class App:
 
         self._path_row(frame, 5, "朋友圈 TXT", self.report_txt, self._choose_report_txt)
 
-        ttk.Checkbutton(
-            frame,
-            text="同时导出本地可打开图片 HTML（会自动探测图片缓存 key）",
-            variable=self.include_images,
-        ).grid(row=6, column=0, columnspan=4, sticky="w", pady=8)
-
         actions = ttk.Frame(frame)
-        actions.grid(row=7, column=0, columnspan=4, sticky="ew", pady=14)
+        actions.grid(row=6, column=0, columnspan=4, sticky="ew", pady=14)
         ttk.Button(actions, text="一键导出所有朋友圈", command=self._one_click).pack(side="left", padx=(0, 8))
         ttk.Button(actions, text="生成 HTML 个人报告", command=self._generate_report).pack(side="left", padx=(0, 8))
         ttk.Button(actions, text="打开输出目录", command=self._open_output).pack(side="left", padx=(0, 8))
         ttk.Button(actions, text="重新自动检测", command=self._auto_source_root).pack(side="left")
 
         self.log = ScrolledText(frame, height=22, wrap="word")
-        self.log.grid(row=8, column=0, columnspan=4, sticky="nsew", pady=(10, 0))
+        self.log.grid(row=7, column=0, columnspan=4, sticky="nsew", pady=(10, 0))
         self._log("准备就绪。确认 Windows 版微信已登录后，点击“一键导出所有朋友圈”。")
         if self.source_root.get():
             self._log(f"微信数据目录：{self.source_root.get()}")
 
         frame.columnconfigure(1, weight=1)
-        frame.rowconfigure(8, weight=1)
+        frame.rowconfigure(7, weight=1)
 
     def _path_row(self, frame: ttk.Frame, row: int, label: str, variable: StringVar, command, extra: bool = False) -> None:
         ttk.Label(frame, text=label).grid(row=row, column=0, sticky="w", pady=6)
@@ -141,7 +133,7 @@ class App:
             "确认一键导出",
             (
                 "这一步会读取本机正在运行的 Weixin.exe 进程内存，"
-                "用于解密你本人本机的朋友圈数据库和图片缓存。\n\n"
+                "用于解密你本人本机的朋友圈数据库。\n\n"
                 "请确认你正在导出的账号是自己的微信账号，并且微信已登录。"
             ),
         ):
@@ -151,7 +143,7 @@ class App:
             return one_click_export(
                 output_dir=output_dir,
                 source_root=source_root,
-                include_images=self.include_images.get(),
+                include_images=False,
                 start_date=start_date,
                 end_date=end_date,
                 logger=self._thread_log,
@@ -188,8 +180,8 @@ class App:
 
         def worker() -> None:
             try:
-                result = fn()
-                self.events.put(f"[{name}] 完成\n{json.dumps(result, ensure_ascii=False, indent=2)}")
+                fn()
+                self.events.put(f"[{name}] 完成")
             except Exception as exc:
                 self.events.put(f"[{name}] 失败：{exc}\n{traceback.format_exc()}")
 

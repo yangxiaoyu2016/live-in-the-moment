@@ -349,20 +349,6 @@ def _render_report(records: list[TextMoment]) -> str:
     .year-list span {{ color: var(--muted); margin-left: 6px; }}
     .analysis-section {{ margin: 18px 0; }}
     .analysis-intro {{ margin-top: 0; color: var(--muted); }}
-    details {{
-      margin: 12px 0 16px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 10px 12px;
-      background: #fbfcfd;
-    }}
-    summary {{ cursor: pointer; font-weight: 700; color: var(--accent-dark); }}
-    pre {{
-      white-space: pre-wrap;
-      margin: 10px 0 0;
-      color: var(--muted);
-      font-family: inherit;
-    }}
     .year-grid {{
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -433,12 +419,8 @@ def _render_report(records: list[TextMoment]) -> str:
       <nav class="panel month-nav" aria-label="月份导航">{month_links}</nav>
     </section>
     <section class="analysis-section panel" id="yearly-summary">
-      <h2>年度总结 <span>按内置 Prompt 生成</span></h2>
+      <h2>年度总结 <span>本地分析</span></h2>
       <p class="analysis-intro">以下内容只基于 TXT 中已经出现的朋友圈文字做本地分析；没有足够证据的字段会写“无法判断”。</p>
-      <details>
-        <summary>查看内置 Prompt</summary>
-        <pre>{_html_text(YEARLY_SUMMARY_PROMPT)}</pre>
-      </details>
       <div class="year-grid">
         {"".join(yearly_summary_cards)}
       </div>

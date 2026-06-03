@@ -19,7 +19,7 @@ Chinese documentation: [README.zh-CN.md](README.zh-CN.md)
 ## Features
 
 - Export Moments date and text from `moments_extracted.json` into JSON, CSV, Markdown, and TXT.
-- Build a local personal HTML report from `moments_text.txt`, including a built-in yearly summary analysis prompt.
+- Build a local personal HTML report from `moments_text.txt`, including local yearly summary analysis.
 - Decode locally cached WeChat V1/V2 image cache files when you provide the V2 image cache AES key.
 - Build a local, openable HTML gallery with Markdown and media manifest outputs.
 - Remove duplicate images and keep the clearest copy by pixel count.
@@ -41,7 +41,7 @@ In the app:
 
 The executable is not code-signed, so Windows SmartScreen may show a warning on first run.
 
-Image export is automatic when the image cache key is available in the running WeChat process. If the app exports text but skips images, open Moments or any Moment photo in WeChat, then run the export again.
+The Windows app currently focuses on text export and the HTML personal report. Image export is hidden in the app for now; advanced users can still use the CLI gallery commands.
 
 ### Python CLI
 
@@ -61,7 +61,7 @@ limm export-text `
   --output-dir out\text
 ```
 
-Build a local personal HTML report from exported text. The report includes a yearly summary section generated locally from the built-in prompt, with unknown fields marked as `无法判断`.
+Build a local personal HTML report from exported text. The report includes a yearly summary section generated locally, with unknown fields marked as `无法判断`.
 
 ```powershell
 limm report-from-txt `

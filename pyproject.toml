@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "live-in-the-moment"
-version = "0.2.3"
+version = "0.2.4"
 description = "Archive your own WeChat Moments text and local cached images into portable files."
 readme = "README.md"
 requires-python = ">=3.10"
