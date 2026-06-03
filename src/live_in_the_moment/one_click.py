@@ -9,6 +9,7 @@ from .extract import export_raw_timeline, extract_moments
 from .gallery import build_gallery
 from .moments import export_text
 from .probe import probe_v2_key
+from .report import build_report_from_txt
 
 
 def find_v2_sample(account_root: Path) -> Path | None:
@@ -85,6 +86,13 @@ def one_click_export(
     text = export_text(Path(extracted["json"]), output_dir / "text", start_date=start_date, end_date=end_date)
     text_path = Path(text["text"])
     logger(f"朋友圈文字保存在了：目录 {text_path.parent}，文件 {text_path.name}")
+    report = {}
+    try:
+        report = build_report_from_txt(text_path)
+        report_path = Path(report["html"])
+        logger(f"朋友圈个人报告保存在了：目录 {report_path.parent}，文件 {report_path.name}")
+    except Exception as exc:
+        logger(f"朋友圈个人报告生成失败：{exc}")
 
     gallery = {}
     image_key = ""
@@ -122,6 +130,7 @@ def one_click_export(
         "text": text,
         "text_dir": str(text_path.parent),
         "text_file": text_path.name,
+        "report": report,
         "gallery": gallery,
         "images_enabled": include_images,
         "images_key_found": bool(image_key),

@@ -13,18 +13,20 @@ from tkinter.scrolledtext import ScrolledText
 from . import __version__
 from .db_decrypt import candidate_source_roots
 from .one_click import one_click_export, validate_date_range
+from .report import build_report_from_txt
 
 
 class App:
     def __init__(self, root: Tk) -> None:
         self.root = root
         self.root.title(f"Live in the Moment v{__version__}")
-        self.root.geometry("900x640")
+        self.root.geometry("940x700")
         self.events: queue.Queue[str] = queue.Queue()
 
         source_roots = candidate_source_roots()
         self.source_root = StringVar(value=str(source_roots[0]) if source_roots else str(Path.home() / "xwechat_files"))
         self.output_dir = StringVar(value=str(Path.home() / "Documents" / "live-in-the-moment-output"))
+        self.report_txt = StringVar(value=str(self._default_report_txt()))
         self.start_date = StringVar()
         self.end_date = StringVar()
         self.include_images = BooleanVar(value=True)
@@ -59,26 +61,29 @@ class App:
         ttk.Label(frame, text="结束日期  YYYY-MM-DD，可留空").grid(row=4, column=1, sticky="w", padx=(160, 0), pady=6)
         ttk.Entry(frame, textvariable=self.end_date, width=18).grid(row=4, column=1, sticky="w", padx=(360, 0), pady=6)
 
+        self._path_row(frame, 5, "朋友圈 TXT", self.report_txt, self._choose_report_txt)
+
         ttk.Checkbutton(
             frame,
             text="同时导出本地可打开图片 HTML（会自动探测图片缓存 key）",
             variable=self.include_images,
-        ).grid(row=5, column=0, columnspan=4, sticky="w", pady=8)
+        ).grid(row=6, column=0, columnspan=4, sticky="w", pady=8)
 
         actions = ttk.Frame(frame)
-        actions.grid(row=6, column=0, columnspan=4, sticky="ew", pady=14)
+        actions.grid(row=7, column=0, columnspan=4, sticky="ew", pady=14)
         ttk.Button(actions, text="一键导出所有朋友圈", command=self._one_click).pack(side="left", padx=(0, 8))
+        ttk.Button(actions, text="生成 HTML 个人报告", command=self._generate_report).pack(side="left", padx=(0, 8))
         ttk.Button(actions, text="打开输出目录", command=self._open_output).pack(side="left", padx=(0, 8))
         ttk.Button(actions, text="重新自动检测", command=self._auto_source_root).pack(side="left")
 
         self.log = ScrolledText(frame, height=22, wrap="word")
-        self.log.grid(row=7, column=0, columnspan=4, sticky="nsew", pady=(10, 0))
+        self.log.grid(row=8, column=0, columnspan=4, sticky="nsew", pady=(10, 0))
         self._log("准备就绪。确认 Windows 版微信已登录后，点击“一键导出所有朋友圈”。")
         if self.source_root.get():
             self._log(f"微信数据目录：{self.source_root.get()}")
 
         frame.columnconfigure(1, weight=1)
-        frame.rowconfigure(7, weight=1)
+        frame.rowconfigure(8, weight=1)
 
     def _path_row(self, frame: ttk.Frame, row: int, label: str, variable: StringVar, command, extra: bool = False) -> None:
         ttk.Label(frame, text=label).grid(row=row, column=0, sticky="w", pady=6)
@@ -96,6 +101,15 @@ class App:
         path = filedialog.askdirectory(title="选择输出目录")
         if path:
             self.output_dir.set(path)
+            self.report_txt.set(str(self._default_report_txt()))
+
+    def _choose_report_txt(self) -> None:
+        path = filedialog.askopenfilename(
+            title="选择 moments_text.txt",
+            filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
+        )
+        if path:
+            self.report_txt.set(path)
 
     def _auto_source_root(self) -> None:
         roots = candidate_source_roots()
@@ -144,6 +158,25 @@ class App:
             )
 
         self._run("一键导出", job)
+
+    def _default_report_txt(self) -> Path:
+        return Path(self.output_dir.get().strip()) / "text" / "moments_text.txt"
+
+    def _generate_report(self) -> None:
+        raw_path = self.report_txt.get().strip()
+        txt_path = Path(raw_path) if raw_path else self._default_report_txt()
+        if not txt_path.exists():
+            messagebox.showerror("未找到 TXT", f"没有找到朋友圈 TXT：\n{txt_path}")
+            return
+
+        def job() -> dict:
+            result = build_report_from_txt(txt_path)
+            report_path = Path(result["html"])
+            self._thread_log(f"朋友圈个人报告保存在了：目录 {report_path.parent}，文件 {report_path.name}")
+            webbrowser.open(report_path.as_uri())
+            return result
+
+        self._run("生成 HTML 个人报告", job)
 
     def _open_output(self) -> None:
         path = Path(self.output_dir.get().strip())

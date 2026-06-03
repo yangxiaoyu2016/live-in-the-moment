@@ -15,6 +15,7 @@ from live_in_the_moment.extract import extract_moments, parse_xml_content
 from live_in_the_moment.media import decode_v2_image_bytes, sniff_ext
 from live_in_the_moment.moments import export_text, load_moments
 from live_in_the_moment.one_click import validate_date_range
+from live_in_the_moment.report import build_report_from_txt, parse_moments_txt
 
 
 def png_bytes(size=(32, 32), color=(200, 40, 40)) -> bytes:
@@ -78,6 +79,56 @@ class CoreTests(unittest.TestCase):
             validate_date_range("2025/01/01", "")
         with self.assertRaisesRegex(ValueError, "开始日期不能晚于结束日期"):
             validate_date_range("2026-01-01", "2025-01-01")
+
+    def test_parse_moments_txt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src = Path(tmp) / "moments_text.txt"
+            src.write_text(
+                "\n".join(
+                    [
+                        "2025-01-01 09:00:00",
+                        "First line",
+                        "Second line with <script>alert(1)</script> & text",
+                        "",
+                        "2025-02-01 10:30:00",
+                        "[No text]",
+                        "",
+                        "2025-03-03 11:00:00",
+                        "Last entry without trailing newline",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            records = parse_moments_txt(src)
+            self.assertEqual(len(records), 3)
+            self.assertEqual(records[0].content, "First line\nSecond line with <script>alert(1)</script> & text")
+            self.assertEqual(records[1].content, "")
+            self.assertEqual(records[2].content, "Last entry without trailing newline")
+
+    def test_build_report_from_txt_escapes_user_content(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src = Path(tmp) / "moments_text.txt"
+            out = Path(tmp) / "custom_report.html"
+            src.write_text(
+                "2025-01-01 09:00:00\n<script>alert(1)</script> & <b>bold</b>\n",
+                encoding="utf-8",
+            )
+            result = build_report_from_txt(src, out)
+            html = out.read_text(encoding="utf-8")
+            self.assertEqual(result["moments"], 1)
+            self.assertEqual(result["html"], str(out))
+            self.assertIn("微信朋友圈个人报告", html)
+            self.assertIn("month-2025-01", html)
+            self.assertIn("&lt;script&gt;alert(1)&lt;/script&gt; &amp; &lt;b&gt;bold&lt;/b&gt;", html)
+            self.assertNotIn("<script>alert(1)</script>", html)
+            self.assertIn("applySearch", html)
+
+    def test_parse_moments_txt_rejects_empty_input(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src = Path(tmp) / "moments_text.txt"
+            src.write_text("No timestamps here\njust text\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "No valid Moments timestamps"):
+                parse_moments_txt(src)
 
     def test_dedupe_prefers_larger_image(self):
         small = png_bytes((32, 32), (30, 120, 200))

@@ -19,6 +19,7 @@ Chinese documentation: [README.zh-CN.md](README.zh-CN.md)
 ## Features
 
 - Export Moments date and text from `moments_extracted.json` into JSON, CSV, Markdown, and TXT.
+- Build a local personal HTML report from `moments_text.txt`.
 - Decode locally cached WeChat V1/V2 image cache files when you provide the V2 image cache AES key.
 - Build a local, openable HTML gallery with Markdown and media manifest outputs.
 - Remove duplicate images and keep the clearest copy by pixel count.
@@ -58,6 +59,13 @@ Export text:
 limm export-text `
   --input examples\moments_extracted.sample.json `
   --output-dir out\text
+```
+
+Build a local personal HTML report from exported text:
+
+```powershell
+limm report-from-txt `
+  --input out\text\moments_text.txt
 ```
 
 One-click export from the currently logged-in Windows WeChat:
@@ -108,6 +116,10 @@ The sample in `examples/` is fake data.
 - `moments_text.csv`
 - `moments_text.md`
 - `moments_text.txt`
+
+`report-from-txt` writes:
+
+- `moments_report.html`
 
 `build-gallery` writes:
 

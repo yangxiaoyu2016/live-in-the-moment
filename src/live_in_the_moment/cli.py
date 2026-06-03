@@ -9,6 +9,7 @@ from .gallery import build_gallery
 from .moments import export_text
 from .one_click import one_click_export
 from .probe import probe_v2_key
+from .report import build_report_from_txt
 
 
 def _print_result(result: dict) -> None:
@@ -29,6 +30,10 @@ def main(argv: list[str] | None = None) -> int:
     text.add_argument("--output-dir", required=True, type=Path)
     text.add_argument("--start-date", default="", help="Inclusive YYYY-MM-DD")
     text.add_argument("--end-date", default="", help="Inclusive YYYY-MM-DD")
+
+    report = sub.add_parser("report-from-txt", help="Build a local HTML personal report from moments_text.txt")
+    report.add_argument("--input", required=True, type=Path)
+    report.add_argument("--output", type=Path, default=None, help="Output HTML path. Defaults to moments_report.html next to the input TXT.")
 
     gallery = sub.add_parser("build-gallery", help="Build a local HTML gallery from Moments and WeChat image cache")
     gallery.add_argument("--input", required=True, type=Path)
@@ -56,6 +61,9 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "export-text":
             _print_result(export_text(args.input, args.output_dir, start_date=args.start_date, end_date=args.end_date))
+            return 0
+        if args.command == "report-from-txt":
+            _print_result(build_report_from_txt(args.input, args.output))
             return 0
         if args.command == "build-gallery":
             _print_result(

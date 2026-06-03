@@ -7,6 +7,7 @@
 ## 功能
 
 - 从 `moments_extracted.json` 导出朋友圈发表时间和文字，输出 JSON、CSV、Markdown、TXT。
+- 从 `moments_text.txt` 生成本地 HTML 个人报告。
 - 在你提供 V2 图片缓存 AES key 后，解密微信本地 V1/V2 图片缓存。
 - 生成本地可打开的 HTML 图文归档、Markdown 和 media manifest。
 - 对重复图片去重，保留像素更高、更清晰的版本。
@@ -46,6 +47,13 @@ pip install -e .
 limm export-text `
   --input examples\moments_extracted.sample.json `
   --output-dir out\text
+```
+
+从导出的 TXT 生成本地 HTML 个人报告：
+
+```powershell
+limm report-from-txt `
+  --input out\text\moments_text.txt
 ```
 
 从当前已登录的 Windows 版微信一键导出：
@@ -96,6 +104,10 @@ limm probe-v2-key `
 - `moments_text.csv`
 - `moments_text.md`
 - `moments_text.txt`
+
+`report-from-txt` 会生成：
+
+- `moments_report.html`
 
 `build-gallery` 会生成：
 
