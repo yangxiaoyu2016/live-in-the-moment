@@ -7,7 +7,7 @@
 ## 功能
 
 - 从 `moments_extracted.json` 导出朋友圈发表时间和文字，输出 JSON、CSV、Markdown、TXT。
-- 从 `moments_text.txt` 生成本地 HTML 个人报告。
+- 从 `moments_text.txt` 生成本地 HTML 个人报告，并内置年度总结 Prompt 分析。
 - 在你提供 V2 图片缓存 AES key 后，解密微信本地 V1/V2 图片缓存。
 - 生成本地可打开的 HTML 图文归档、Markdown 和 media manifest。
 - 对重复图片去重，保留像素更高、更清晰的版本。
@@ -49,7 +49,7 @@ limm export-text `
   --output-dir out\text
 ```
 
-从导出的 TXT 生成本地 HTML 个人报告：
+从导出的 TXT 生成本地 HTML 个人报告。报告会按内置年度总结 Prompt 在本地分析；无法判断的字段会写“无法判断”。
 
 ```powershell
 limm report-from-txt `

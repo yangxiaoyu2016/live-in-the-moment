@@ -4,6 +4,7 @@ import json
 import struct
 import tempfile
 import unittest
+from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 
@@ -15,7 +16,7 @@ from live_in_the_moment.extract import extract_moments, parse_xml_content
 from live_in_the_moment.media import decode_v2_image_bytes, sniff_ext
 from live_in_the_moment.moments import export_text, load_moments
 from live_in_the_moment.one_click import validate_date_range
-from live_in_the_moment.report import build_report_from_txt, parse_moments_txt
+from live_in_the_moment.report import TextMoment, build_report_from_txt, build_yearly_summaries, parse_moments_txt
 
 
 def png_bytes(size=(32, 32), color=(200, 40, 40)) -> bytes:
@@ -30,6 +31,10 @@ def make_v2_cache(body: bytes, key: bytes) -> bytes:
     encrypted = Cipher(algorithms.AES(key), modes.ECB()).encryptor().update(padded)
     header = b"\x07\x08V2\x08\x07" + struct.pack("<H", len(body)) + b"\x00" * 7
     return header + encrypted
+
+
+def parse_moments_txt_line(timestamp: str, content: str) -> TextMoment:
+    return TextMoment(created=datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S"), content=content)
 
 
 class CoreTests(unittest.TestCase):
@@ -117,11 +122,36 @@ class CoreTests(unittest.TestCase):
             html = out.read_text(encoding="utf-8")
             self.assertEqual(result["moments"], 1)
             self.assertEqual(result["html"], str(out))
+            self.assertEqual(result["analysis_prompts"], ["yearly_summary"])
             self.assertIn("微信朋友圈个人报告", html)
+            self.assertIn("年度总结", html)
+            self.assertIn("查看内置 Prompt", html)
             self.assertIn("month-2025-01", html)
             self.assertIn("&lt;script&gt;alert(1)&lt;/script&gt; &amp; &lt;b&gt;bold&lt;/b&gt;", html)
             self.assertNotIn("<script>alert(1)</script>", html)
             self.assertIn("applySearch", html)
+
+    def test_build_yearly_summaries_uses_only_observed_text(self):
+        records = [
+            parse_moments_txt_line("2024-01-01 09:00:00", "工作 项目 加班，但是和朋友吃饭很开心。"),
+            parse_moments_txt_line("2025-01-01 09:00:00", "旅行 到达 东京，拍照记录。"),
+        ]
+        summaries = build_yearly_summaries(records)
+        self.assertEqual([item["year"] for item in summaries], ["2024", "2025"])
+        self.assertIn("工作/事业", summaries[0]["main_themes"])
+        self.assertIn("朋友关系", summaries[0]["relationships"])
+        self.assertIn("偏积极", summaries[0]["emotion"])
+        self.assertIn("旅行/城市", summaries[1]["main_themes"])
+        self.assertIn("变化为", summaries[1]["life_change"])
+        self.assertTrue(any("工作 项目 加班" in item for item in summaries[0]["representative_expressions"]))
+
+    def test_build_yearly_summaries_marks_unknown_fields(self):
+        records = [parse_moments_txt_line("2025-01-01 09:00:00", "。")]
+        summary = build_yearly_summaries(records)[0]
+        self.assertEqual(summary["main_themes"], "无法判断")
+        self.assertEqual(summary["emotion"], "无法判断")
+        self.assertEqual(summary["life_focus"], "无法判断")
+        self.assertEqual(summary["relationships"], "无法判断")
 
     def test_parse_moments_txt_rejects_empty_input(self):
         with tempfile.TemporaryDirectory() as tmp:
