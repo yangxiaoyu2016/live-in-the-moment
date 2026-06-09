@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import queue
+import sys
 import threading
 import traceback
 import webbrowser
@@ -128,6 +129,17 @@ class App:
         return source_root, Path(raw_output), start_date, end_date
 
     def _one_click(self) -> None:
+        if sys.platform != "win32":
+            messagebox.showerror(
+                "macOS 暂不支持一键导出",
+                (
+                    "Mac 版目前可以打开软件并使用 TXT 生成 HTML 个人报告。\n\n"
+                    "一键读取微信数据库暂时只支持 Windows 版微信；"
+                    "Mac 微信数据库自动解密还没有实现。"
+                ),
+            )
+            return
+
         try:
             source_root, output_dir, start_date, end_date = self._validate()
         except ValueError as exc:

@@ -6,13 +6,17 @@ Archive your own WeChat Moments text and locally cached images into portable fil
 
 This project is for personal data recovery and archiving on your own Windows machine. It does not bypass WeChat account login, does not fetch private data from remote services, and must only be used on data you own or are authorized to process.
 
-## Download the Windows app
+## Download the app
 
-For the fastest start, download the ready-to-run Windows executable:
+For the fastest start, download the ready-to-run app for your system:
 
-[Download LiveInTheMoment.exe](https://github.com/yangxiaoyu2016/live-in-the-moment/releases/latest/download/LiveInTheMoment.exe)
+- Windows: [LiveInTheMoment.exe](https://github.com/yangxiaoyu2016/live-in-the-moment/releases/latest/download/LiveInTheMoment.exe)
+- macOS Apple Silicon: [LiveInTheMoment-macOS-arm64.app.zip](https://github.com/yangxiaoyu2016/live-in-the-moment/releases/latest/download/LiveInTheMoment-macOS-arm64.app.zip)
+- macOS Intel: [LiveInTheMoment-macOS-intel.app.zip](https://github.com/yangxiaoyu2016/live-in-the-moment/releases/latest/download/LiveInTheMoment-macOS-intel.app.zip)
 
 Then log in to WeChat for Windows, keep it running, open the app, and click `One-click export all Moments`.
+
+The macOS app is unsigned. If macOS blocks it after unzipping, right-click the app and choose `Open`.
 
 Chinese documentation: [README.zh-CN.md](README.zh-CN.md)
 
@@ -27,11 +31,11 @@ Chinese documentation: [README.zh-CN.md](README.zh-CN.md)
 
 ## Install
 
-### Downloadable Windows app
+### Downloadable app
 
-For most users, download [LiveInTheMoment.exe](https://github.com/yangxiaoyu2016/live-in-the-moment/releases/latest/download/LiveInTheMoment.exe) and double-click it.
+For most users, download the app for your system from the links above and open it.
 
-In the app:
+On Windows:
 
 1. Log in to WeChat for Windows and keep it running.
 2. Open `LiveInTheMoment.exe`.
@@ -42,6 +46,8 @@ In the app:
 The executable is not code-signed, so Windows SmartScreen may show a warning on first run.
 
 The Windows app currently focuses on text export and the HTML personal report. Image export is hidden in the app for now; advanced users can still use the CLI gallery commands.
+
+The macOS app can run the local TXT-to-HTML personal report workflow. Full one-click WeChat database export is still Windows-only because the current database key detection depends on Windows WeChat.
 
 ### Python CLI
 

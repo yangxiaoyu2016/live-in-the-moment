@@ -5,8 +5,13 @@ import json
 import re
 import sqlite3
 import subprocess
-from ctypes import wintypes
+import sys
 from pathlib import Path
+
+try:
+    from ctypes import wintypes
+except ImportError:  # pragma: no cover - platform dependent
+    wintypes = None
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
@@ -15,6 +20,7 @@ PROCESS_VM_READ = 0x0010
 MEM_COMMIT = 0x1000
 PAGE_GUARD = 0x100
 PAGE_NOACCESS = 0x01
+DWORD = wintypes.DWORD if wintypes is not None else ctypes.c_uint32
 
 HEX96_RE = re.compile(rb"x'([0-9a-f]{96})'", re.IGNORECASE)
 SNS_PATH_RE = re.compile(rb"[A-Za-z]:\\[^\x00\r\n]{0,320}?db_storage\\sns\\sns\.db", re.IGNORECASE)
@@ -24,12 +30,21 @@ class MemoryBasicInformation(ctypes.Structure):
     _fields_ = [
         ("BaseAddress", ctypes.c_void_p),
         ("AllocationBase", ctypes.c_void_p),
-        ("AllocationProtect", wintypes.DWORD),
+        ("AllocationProtect", DWORD),
         ("RegionSize", ctypes.c_size_t),
-        ("State", wintypes.DWORD),
-        ("Protect", wintypes.DWORD),
-        ("Type", wintypes.DWORD),
+        ("State", DWORD),
+        ("Protect", DWORD),
+        ("Type", DWORD),
     ]
+
+
+def require_windows_wechat() -> None:
+    if sys.platform != "win32":
+        raise RuntimeError(
+            "一键读取微信数据库目前只支持 Windows 版微信。"
+            "macOS 版可以打开软件并使用 TXT 生成 HTML 个人报告；"
+            "Mac 微信数据库自动解密还没有实现。"
+        )
 
 
 def run_cmd(args: list[str]) -> str:
@@ -268,6 +283,7 @@ def decrypt_db(src_db: Path, dst_db: Path, key_hex: str, reserve: int, page_size
 
 
 def decrypt_logged_in_sns_db(output_dir: Path, source_root: Path | None = None, pid: int = 0, logger=print) -> dict:
+    require_windows_wechat()
     use_pid = pid or find_main_weixin_pid()
     logger(f"[1/5] 已找到微信进程：{use_pid}")
     db_path, detect_source = auto_select_sns_db(use_pid, source_root)
@@ -294,4 +310,3 @@ def decrypt_logged_in_sns_db(output_dir: Path, source_root: Path | None = None, 
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     logger("[3/5] 朋友圈数据库解密完成")
     return report
-

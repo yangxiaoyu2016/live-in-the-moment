@@ -2,7 +2,17 @@
 
 把你自己的微信朋友圈文字和本地缓存图片整理成可长期保存、可本地打开的归档文件。
 
-本项目用于个人数据恢复和归档，只应在你自己的 Windows 电脑上处理你本人拥有或已获授权的数据。它不会绕过微信账号登录，不会从远程服务抓取他人的私密数据。
+本项目用于个人数据恢复和归档，只应处理你本人拥有或已获授权的数据。它不会绕过微信账号登录，不会从远程服务抓取他人的私密数据。
+
+## 下载
+
+最快开始使用：按你的系统下载程序。
+
+- Windows: [LiveInTheMoment.exe](https://github.com/yangxiaoyu2016/live-in-the-moment/releases/latest/download/LiveInTheMoment.exe)
+- macOS Apple Silicon: [LiveInTheMoment-macOS-arm64.app.zip](https://github.com/yangxiaoyu2016/live-in-the-moment/releases/latest/download/LiveInTheMoment-macOS-arm64.app.zip)
+- macOS Intel: [LiveInTheMoment-macOS-intel.app.zip](https://github.com/yangxiaoyu2016/live-in-the-moment/releases/latest/download/LiveInTheMoment-macOS-intel.app.zip)
+
+macOS 程序暂未做代码签名。解压后如果系统拦截，请右键点击 App，再选择“打开”。
 
 ## 功能
 
@@ -15,11 +25,11 @@
 
 ## 安装
 
-### 直接下载 Windows 程序
+### 直接下载程序
 
-大多数用户可以直接从 GitHub Releases 下载 `LiveInTheMoment.exe`，双击运行。
+大多数用户可以直接从上面的链接下载对应系统的程序，双击运行。
 
-在程序里：
+Windows 用户在程序里：
 
 1. 先登录 Windows 版微信，并保持微信运行。
 2. 打开 `LiveInTheMoment.exe`。
@@ -30,6 +40,8 @@
 这个 EXE 暂未做代码签名，Windows SmartScreen 第一次运行时可能会提示风险。
 
 Windows 程序当前先专注导出文字和生成 HTML 个人报告，图片导出入口暂时隐藏；高级用户仍可使用命令行图文归档功能。
+
+macOS 程序目前可以用于从 `moments_text.txt` 生成本地 HTML 个人报告；完整的一键读取微信数据库仍只支持 Windows 版微信，因为当前数据库 key 检测依赖 Windows 微信。
 
 ### Python 命令行
 
